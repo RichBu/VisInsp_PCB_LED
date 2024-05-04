@@ -1,0 +1,205 @@
+﻿<!DOCTYPE html>
+
+<!-- <html lang="en" xmlns="http://www.w3.org/1999/xhtml"> -->
+<html lang="en">
+<head>
+    <!-- <meta charset="utf-8" /> -->
+    <title>BHPB "Pancake" Detection</title>
+    <style>
+        * {
+            font-family: sans-serif;
+            font-size: 12px;
+        }
+
+        body {
+            padding: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            text-align: right;
+        }
+
+            table tr {
+                border-bottom: 1px solid
+            }
+
+            table th, table td {
+                padding: 10px 20px;
+            }
+    </style>
+</head>
+<body>
+
+    <h1 style="font-size:20px; font-weight:bold;">Feasability study on BHPB still image</h1>
+    <h3><br /></h3>
+    <h1 style="font-size:20px; font-weight:bold;">Purpose: Can computer vision detect bone hangups "pancakes" on the tooling ? </h1>
+    <h1 style="font-size:15px; font-weight:bold;">Test program by Rich Budek 01/12/2021</h1>
+    <h3><br /></h3>
+    <h3>BACKGROUND</h3>
+    <h3>
+        Customer's rotary compression molding machine is having hangups or "pancakes". Five years ago, a digital height gauge system was
+        installed to measure the height of mold set after compression.  If there was excess material, then the system would detect this
+        by seeing a lower height.  That is, the top plate would be closer to the sensor face, which was aimed down.  Thus, the top plate
+        was up higher than during a normal run.  This method required permanent brackets and wiring to accomplish this.  This wiring and
+        brackets were removed during a machine rebuild and no longer available.<br /> <br />
+        Today, the question is, "Can computer vision be used on a movie sequence, either real-time or on a file, to determine which
+        stations are having hangups ?".  Of course, if detection is possible then data could be collected, stored, and used for a design
+        of experiments test.  Using a computer vision system could be as easy as being a hand held mobile device or just a camera. Both
+        could be externally mounted quite easily.<br /> <br />
+        Evaluating the motion could be done real-time while the machine is in motion, or have the motion be saved in a MPEG movie file
+        and processed at a later time. <br />
+    </h3>
+
+    <h3 style="font-size:3px;"><br /></h3>
+    {{ head_table }}
+    <h3 style="font-size:1px; margin:0px;"><br /><br /></h3>
+    <h3>
+        <p style="page-break-before: always"></p>
+        <br />
+    </h3>
+    <hr />
+    <h3 style="font-size:1px; margin:0px;"><br /></h3>
+    <h2>ORIGINAL PICTURE</h2>
+    <h3>
+        This is the original picture without any markups.  It is a single frame extracted from a movie file.<br />
+        Original movie was shot on handheld android phone.
+    </h3>
+    <img src='pic_full.jpg' width="800">
+
+    <h3>
+        <p style="page-break-before: always"></p>
+        <br />
+    </h3>
+    <hr />
+    <h3 style="font-size:3px;">
+        <br />
+    </h3>
+    <h2>WITH SEARCH WINDOW</h2>
+    <h3>
+        Highlighted in red is the intended search area.  We will be looking for bone material.
+    </h3>
+    <img src='pic_w_search.jpg' width="800">
+
+    <hr />
+    <h3 style="font-size:3px;"><br /></h3>
+    <h2>SEARCH WINDOW</h2>
+    <h3>
+        Just the search window zoomed in.
+    </h3>
+    <img src='pic_search.jpg' width="800">
+
+    <hr />
+    <h3 style="font-size:3px;"><br /></h3>
+    <h2>SEARCH WINDOW CLEANED UP</h2>
+    <h3>
+        If the search area is on an angle, then turn pixels to white for anything outside the box.
+    </h3>
+    <img src='pic_search_clean.jpg' width="800">
+
+
+
+
+
+    <h3>
+        <p style="page-break-before: always"></p>
+        <br />
+    </h3>
+    <hr />
+    <h3><br /></h3>
+    <h3>MEASUREMENTS</h3>
+    <h3><br /></h3>
+    {{ meas_01a_table }}
+    <br />
+    {{ meas_01b_table }}
+    <br />
+    {{ meas_01c_table }}
+    <br />
+    {{ meas_01d_table }}
+    <br />
+    <h3><br /></h3>
+    {{ meas_02a_table }}
+    <br />
+    {{ meas_02b_table }}
+    <br />
+    {{ meas_02c_table }}
+    <br />
+    {{ meas_02d_table }}
+    <br />
+
+    <h3>
+        <p style="page-break-before: always"></p>
+        <br />
+    </h3>
+    <hr />
+    <h3><br /></h3>
+    <h3>DIFFERENCES</h3>
+    <h3>
+        (X1diff and Y1diff is diff to hole #1. This eliminates error to edge). <br />
+        L1diff is the total length difference. This is the most critical for assessing the accuracy of the X-Y centers.
+        The length difference is computed as pythagorean <br />
+        theorem.  So, the X and Y difference are squared. Therefore the difference is always negative. The sign does not change.
+    </h3>
+    <h5><br /></h5>
+    {% for table in meas_03_tables%}
+    {{ table }}
+    <br />
+    <h3>
+        <p style="page-break-before: always"></p>
+        <br />
+    </h3>
+    {% endfor %}
+
+
+    <hr />
+    <h3><br /></h3>
+    <h2>PLOTS</h2>
+    <h3>
+        All of the hole diameters from all the holes on all of the plates.<br />
+        The spec is 0.4900 to 0.4910. If a hole diameter is too small, dirt maybe the cause.
+    </h3>
+    <img src='plot_01.svg' width="1000">
+
+    <h3>
+        <p style="page-break-before: always"></p>
+        <br />
+    </h3>
+    <img src='plot_02.svg' width="1000">
+
+    <h3>
+        <p style="page-break-before: always"></p>
+        <br />
+    </h3>
+    <h3>
+        All of the hole locations from all the holes on all of the plates. To eliminate errors caused by measuring from the side of the plate, math was <br />
+        done on the collected data.  The X-Y location of hole #1 was used as the origin. Then, math calculations were done to measure the distance from the hole # 01<br />
+        location to the current location.  This value then is compared to the specification (theoretical) value.  The closer to zero, the more accurate the hole<br />
+        center location is.  Because the distance (length) measurement has squares in it, the sign never changes so the difference is always negative.
+    </h3>
+    <img src='plot_03.svg' width="1000">
+
+    <h3>
+        <p style="page-break-before: always"></p>
+        <br />
+    </h3>
+    <img src='plot_04.svg' width="1000">
+
+    <h3>
+        <p style="page-break-before: always"></p>
+        <br />
+    </h3>
+    <h3>
+        All of the Z heights by each hole.<br />
+        The differences in Z heights is not just the plate not being perfectly flat, <br />
+        But also that the plate maybe tilted in the Z plane in the vise. <br />
+    </h3>
+    <img src='plot_05.svg' width="1000">
+
+    <h3>
+        <p style="page-break-before: always"></p>
+        <br />
+    </h3>
+    <img src='plot_06.svg' width="1000">
+
+</body>
+</html>

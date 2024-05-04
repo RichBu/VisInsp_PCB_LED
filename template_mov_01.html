@@ -1,0 +1,131 @@
+﻿<!DOCTYPE html>
+
+<!-- <html lang="en" xmlns="http://www.w3.org/1999/xhtml"> -->
+<html lang="en">
+<head>
+    <!-- <meta charset="utf-8" /> -->
+    <title>BHPB "Pancake" Detection</title>
+    <style>
+        * {
+            font-family: sans-serif;
+            font-size: 12px;
+        }
+
+        body {
+            padding: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            text-align: right;
+        }
+
+            table tr {
+                border-bottom: 1px solid
+            }
+
+            table th, table td {
+                padding: 10px 20px;
+            }
+    </style>
+</head>
+<body>
+
+    <h1 style="font-size:20px; font-weight:bold;">Feasibility Study on a Video Stream</h1>
+    <h3><br /></h3>
+    <h1 style="font-size:20px; font-weight:bold;">Purpose: Can computer vision detect hangups on a video ? </h1>
+    <h1 style="font-size:15px; font-weight:bold;">Test program by Rich Budek 01/19/2021</h1>
+    <h3><br /></h3>
+    <h3>BACKGROUND</h3>
+    <h3>
+        A feasibility study on a still image extracted from a movie was done in a previous document (study). It showed that indeed from
+        an image, a proper computer vision program could locate an area on an image and evaluate it for left over production material
+        to determine if the product had "hung up" in the tooling.
+        <br /> <br />
+        This app or program builds on that experience and expands it.  Now, the app takes a MPEG movie file taken on a standard, nothing
+        fancy Android cellphone with a 1280 x 720 picture size and walks thru the file evaluating for defects. There are many options
+        that can be toggled on or off.
+        <br /> <br />
+        The app begins by looking for motion in a pre-defined location on the image.  If motion is detected from the previous frame then
+        no evaluation is done.  Once the image is stable, it means that the machine is in the dwell position and sitting still.  This
+        frame is then extracted and evaluation is done on it.
+        <br /> <br />
+        The same evaluation function that was used to evaluate still images is used on this extracted frame.  However, because the camera
+        was not held in a stationary position, the view point switches from frame to frame.  So, a wide enough tolerance was picked for
+        the search box was chosen so that it would work on all of the frames.  This was the only manual adjustment done.
+        <br /> <br />
+        After evaluation, if the option to store the still images is turned on, then every frame that has been evaluated is stored in a
+        a unique file name.  This basically allows the user to step thru every station and verify that the app worked corrrectly.
+        <br /> <br />
+        Evaluating the motion could be done real-time while the machine is in motion, or have the motion be saved in a MPEG movie file
+        and processed at a later time. This report shows that running under a VM on a i5 processor can accomplish the task.  The average
+        time between frames is very near to the required 33ms, a 30fps requires 1/30th of a second between frames.  Even when storing
+        the images to the drive, the time is about 1.5 frames. It is felt this could be optimized, but skipping every other frame would
+        still allow the collection of every defect.
+        <br /><br />
+
+    </h3>
+
+    <h3 style="font-size:3px;"><br /></h3>
+    {{ head_table }}
+    <h3 style="font-size:1px; margin:0px;"><br /><br /></h3>
+    <h3>
+        <p style="page-break-before: always"></p>
+        <br />
+    </h3>
+
+    <hr />
+    <h3 style="font-size:1px; margin:0px;"><br /></h3>
+    <h2>RESULTS:</h2>
+    <h3>
+        These are the timing stats for the movie.
+        <br /><br />
+    </h3>
+    <h3 style="font-size:3px;"><br /></h3>
+    {{ results_table }}
+    <br />
+    Note: For continuous streaming evaluation, on a 30fps stream, the evaluation time
+    needs to be <b>33.33ms or less</b> in order to not skip frames. If the time is between 33.33ms
+    and 66.66ms then it means the evaluation will skip every other frame, which is still
+    very much acceptable.  The reason is that the image stays stable from 5-7 frames and
+    that is enough time to grab it and analyze it.
+    <h3 style="font-size:1px; margin:0px;"><br /><br /></h3>
+    <h3>
+        <p style="page-break-before: always"></p>
+        <br />
+    </h3>
+
+    <hr />
+    <h3 style="font-size:1px; margin:0px;"><br /></h3>
+    <h2>BAD IMAGES:</h2>
+    <h3>
+        These are the images were a defect was found.  Again, they are after motion has stopped.
+        <br /><br />
+    </h3>
+    <h3 style="font-size:3px;"><br /></h3>
+    {{ badimg_table }}
+    <br />
+    <h3 style="font-size:1px; margin:0px;"><br /><br /></h3>
+    <h3>
+        <p style="page-break-before: always"></p>
+        <br />
+    </h3>
+
+
+    <hr />
+    <h3 style="font-size:1px; margin:0px;"><br /></h3>
+    <h2>STILL IMAGES WITH DEFECTS FOUND</h2>
+    <h3>
+        These are all of the images where defects (product hanging) were found. <br />
+    </h3>
+    {% for image in images_table %}
+    <h3 style="font-size:5px; margin:0px;"><br /></h3>
+    <h3>Frame = {{image.frame}} &nbsp;time = {{image.time}} secs :</h3>
+    <img src='{{image.filename_full}}' width="400">
+    {% endfor %}
+
+
+
+
+</body>
+</html>

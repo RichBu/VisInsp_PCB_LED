@@ -1,0 +1,15 @@
+﻿ 
+.Program start.
+BHPB visual inspection test program
+rev. 01/12/2021  by Rich Budek
+  
+Evaluate picture: Z:\Shared Folders\Data_WCO\BHPB VisInsp OnSite\Samp Data\Defect_01.jpg
+ 
+coordinates for search box:
+17  ,  550
+17  ,  621
+ 
+847  ,  504
+847  ,  575
+.Program end.
+The thread 'MainThread' (0x1) has exited with code 0 (0x0).

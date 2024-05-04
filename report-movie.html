@@ -1,0 +1,318 @@
+﻿<!DOCTYPE html>
+
+<!-- <html lang="en" xmlns="http://www.w3.org/1999/xhtml"> -->
+<html lang="en">
+<head>
+    <!-- <meta charset="utf-8" /> -->
+    <title>BHPB "Pancake" Detection</title>
+    <style>
+        * {
+            font-family: sans-serif;
+            font-size: 12px;
+        }
+
+        body {
+            padding: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            text-align: right;
+        }
+
+            table tr {
+                border-bottom: 1px solid
+            }
+
+            table th, table td {
+                padding: 10px 20px;
+            }
+    </style>
+</head>
+<body>
+
+    <h1 style="font-size:20px; font-weight:bold;">Feasibility Study on a Video Stream</h1>
+    <h3><br /></h3>
+    <h1 style="font-size:20px; font-weight:bold;">Purpose: Can computer vision detect hangups on a video ? </h1>
+    <h1 style="font-size:15px; font-weight:bold;">Test program by Rich Budek 01/19/2021</h1>
+    <h3><br /></h3>
+    <h3>BACKGROUND</h3>
+    <h3>
+        A feasibility study on a still image extracted from a movie was done in a previous document (study). It showed that indeed from
+        an image, a proper computer vision program could locate an area on an image and evaluate it for left over production material
+        to determine if the product had "hung up" in the tooling.
+        <br /> <br />
+        This app or program builds on that experience and expands it.  Now, the app takes a MPEG movie file taken on a standard, nothing
+        fancy Android cellphone with a 1280 x 720 picture size and walks thru the file evaluating for defects. There are many options
+        that can be toggled on or off.
+        <br /> <br />
+        The app begins by looking for motion in a pre-defined location on the image.  If motion is detected from the previous frame then
+        no evaluation is done.  Once the image is stable, it means that the machine is in the dwell position and sitting still.  This
+        frame is then extracted and evaluation is done on it.
+        <br /> <br />
+        The same evaluation function that was used to evaluate still images is used on this extracted frame.  However, because the camera
+        was not held in a stationary position, the view point switches from frame to frame.  So, a wide enough tolerance was picked for
+        the search box was chosen so that it would work on all of the frames.  This was the only manual adjustment done.
+        <br /> <br />
+        After evaluation, if the option to store the still images is turned on, then every frame that has been evaluated is stored in a
+        a unique file name.  This basically allows the user to step thru every station and verify that the app worked corrrectly.
+        <br /> <br />
+        Evaluating the motion could be done real-time while the machine is in motion, or have the motion be saved in a MPEG movie file
+        and processed at a later time. This report shows that running under a VM on a i5 processor can accomplish the task.  The average
+        time between frames is very near to the required 33ms, a 30fps requires 1/30th of a second between frames.  Even when storing
+        the images to the drive, the time is about 1.5 frames. It is felt this could be optimized, but skipping every other frame would
+        still allow the collection of every defect.
+        <br /><br />
+
+    </h3>
+
+    <h3 style="font-size:3px;"><br /></h3>
+    <style  type="text/css" >
+#T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9row0_col0,#T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9row1_col0,#T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9row2_col0,#T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9row3_col0,#T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9row4_col0,#T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9row5_col0,#T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9row6_col0,#T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9row7_col0,#T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9row8_col0,#T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9row9_col0,#T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9row10_col0,#T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9row11_col0,#T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9row12_col0{
+            color:  black;
+        }</style><table id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9" ><thead>    <tr>        <th class="blank level0" ></th>        <th class="col_heading level0 col0" ></th>    </tr></thead><tbody>
+                <tr>
+                        <th id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9level0_row0" class="row_heading level0 row0" >title</th>
+                        <td id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9row0_col0" class="data row0 col0" >Mini Twisted Bones</td>
+            </tr>
+            <tr>
+                        <th id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9level0_row1" class="row_heading level0 row1" >descrip</th>
+                        <td id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9row1_col0" class="data row1 col0" >production run 2020</td>
+            </tr>
+            <tr>
+                        <th id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9level0_row2" class="row_heading level0 row2" >data file</th>
+                        <td id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9row2_col0" class="data row2 col0" >Top_Only.mp4</td>
+            </tr>
+            <tr>
+                        <th id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9level0_row3" class="row_heading level0 row3" >size</th>
+                        <td id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9row3_col0" class="data row3 col0" >150 KB</td>
+            </tr>
+            <tr>
+                        <th id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9level0_row4" class="row_heading level0 row4" >date</th>
+                        <td id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9row4_col0" class="data row4 col0" >07/20/2020</td>
+            </tr>
+            <tr>
+                        <th id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9level0_row5" class="row_heading level0 row5" >pixel size</th>
+                        <td id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9row5_col0" class="data row5 col0" >1280 x 720</td>
+            </tr>
+            <tr>
+                        <th id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9level0_row6" class="row_heading level0 row6" >operator</th>
+                        <td id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9row6_col0" class="data row6 col0" >Rich Budek</td>
+            </tr>
+            <tr>
+                        <th id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9level0_row7" class="row_heading level0 row7" >search box</th>
+                        <td id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9row7_col0" class="data row7 col0" > </td>
+            </tr>
+            <tr>
+                        <th id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9level0_row8" class="row_heading level0 row8" >UL</th>
+                        <td id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9row8_col0" class="data row8 col0" >11 , 505</td>
+            </tr>
+            <tr>
+                        <th id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9level0_row9" class="row_heading level0 row9" >LR</th>
+                        <td id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9row9_col0" class="data row9 col0" >735 , 580</td>
+            </tr>
+            <tr>
+                        <th id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9level0_row10" class="row_heading level0 row10" >motion box</th>
+                        <td id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9row10_col0" class="data row10 col0" > </td>
+            </tr>
+            <tr>
+                        <th id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9level0_row11" class="row_heading level0 row11" >UL </th>
+                        <td id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9row11_col0" class="data row11 col0" >30 , 307</td>
+            </tr>
+            <tr>
+                        <th id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9level0_row12" class="row_heading level0 row12" >LR </th>
+                        <td id="T_59e1ece3_5ce9_11eb_bc2a_000c29a2d8a9row12_col0" class="data row12 col0" >817 , 504</td>
+            </tr>
+    </tbody></table>
+    <h3 style="font-size:1px; margin:0px;"><br /><br /></h3>
+    <h3>
+        <p style="page-break-before: always"></p>
+        <br />
+    </h3>
+
+    <hr />
+    <h3 style="font-size:1px; margin:0px;"><br /></h3>
+    <h2>RESULTS:</h2>
+    <h3>
+        These are the timing stats for the movie.
+        <br /><br />
+    </h3>
+    <h3 style="font-size:3px;"><br /></h3>
+    <style  type="text/css" >
+#T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row0_col0,#T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row0_col1,#T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row1_col0,#T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row1_col1,#T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row2_col0,#T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row2_col1,#T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row3_col0,#T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row3_col1,#T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row4_col0,#T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row4_col1,#T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row5_col0,#T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row5_col1,#T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row6_col0,#T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row6_col1,#T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row7_col0,#T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row7_col1,#T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row8_col0,#T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row8_col1,#T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row9_col0,#T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row9_col1,#T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row10_col0,#T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row10_col1{
+            color:  black;
+        }</style><table id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9" ><thead>    <tr>        <th class="blank level0" ></th>        <th class="col_heading level0 col0" > </th>        <th class="col_heading level0 col1" >  </th>    </tr></thead><tbody>
+                <tr>
+                        <th id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9level0_row0" class="row_heading level0 row0" >FRAMES:</th>
+                        <td id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row0_col0" class="data row0 col0" > </td>
+                        <td id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row0_col1" class="data row0 col1" > </td>
+            </tr>
+            <tr>
+                        <th id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9level0_row1" class="row_heading level0 row1" >  </th>
+                        <td id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row1_col0" class="data row1 col0" >frames actual = </td>
+                        <td id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row1_col1" class="data row1 col1" >1,043</td>
+            </tr>
+            <tr>
+                        <th id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9level0_row2" class="row_heading level0 row2" >   </th>
+                        <td id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row2_col0" class="data row2 col0" >frames estim  = </td>
+                        <td id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row2_col1" class="data row2 col1" >1,043</td>
+            </tr>
+            <tr>
+                        <th id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9level0_row3" class="row_heading level0 row3" >    </th>
+                        <td id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row3_col0" class="data row3 col0" >w/ stations total  = </td>
+                        <td id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row3_col1" class="data row3 col1" >36</td>
+            </tr>
+            <tr>
+                        <th id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9level0_row4" class="row_heading level0 row4" >     </th>
+                        <td id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row4_col0" class="data row4 col0" >w/ stations bad  = </td>
+                        <td id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row4_col1" class="data row4 col1" >6</td>
+            </tr>
+            <tr>
+                        <th id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9level0_row5" class="row_heading level0 row5" >      </th>
+                        <td id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row5_col0" class="data row5 col0" >w/ stations good  = </td>
+                        <td id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row5_col1" class="data row5 col1" >30</td>
+            </tr>
+            <tr>
+                        <th id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9level0_row6" class="row_heading level0 row6" >TIMES:</th>
+                        <td id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row6_col0" class="data row6 col0" > </td>
+                        <td id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row6_col1" class="data row6 col1" > </td>
+            </tr>
+            <tr>
+                        <th id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9level0_row7" class="row_heading level0 row7" >       </th>
+                        <td id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row7_col0" class="data row7 col0" >time total        = </td>
+                        <td id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row7_col1" class="data row7 col1" >         40.420 secs</td>
+            </tr>
+            <tr>
+                        <th id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9level0_row8" class="row_heading level0 row8" >        </th>
+                        <td id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row8_col0" class="data row8 col0" >time count frames = </td>
+                        <td id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row8_col1" class="data row8 col1" >          0.000 secs</td>
+            </tr>
+            <tr>
+                        <th id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9level0_row9" class="row_heading level0 row9" >         </th>
+                        <td id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row9_col0" class="data row9 col0" >time eval         = </td>
+                        <td id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row9_col1" class="data row9 col1" >         40.420 secs</td>
+            </tr>
+            <tr>
+                        <th id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9level0_row10" class="row_heading level0 row10" >          </th>
+                        <td id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row10_col0" class="data row10 col0" >time per frame    = </td>
+                        <td id="T_59e7b959_5ce9_11eb_ba3a_000c29a2d8a9row10_col1" class="data row10 col1" >           38.8(ms)</td>
+            </tr>
+    </tbody></table>
+    <br />
+    Note: For continuous streaming evaluation, on a 30fps stream, the evaluation time
+    needs to be <b>33.33ms or less</b> in order to not skip frames. If the time is between 33.33ms
+    and 66.66ms then it means the evaluation will skip every other frame, which is still
+    very much acceptable.  The reason is that the image stays stable from 5-7 frames and
+    that is enough time to grab it and analyze it.
+    <h3 style="font-size:1px; margin:0px;"><br /><br /></h3>
+    <h3>
+        <p style="page-break-before: always"></p>
+        <br />
+    </h3>
+
+    <hr />
+    <h3 style="font-size:1px; margin:0px;"><br /></h3>
+    <h2>BAD IMAGES:</h2>
+    <h3>
+        These are the images were a defect was found.  Again, they are after motion has stopped.
+        <br /><br />
+    </h3>
+    <h3 style="font-size:3px;"><br /></h3>
+    <style  type="text/css" >
+#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row0_col0,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row0_col1,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row0_col2,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row0_col3,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row0_col4,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row1_col0,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row1_col1,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row1_col2,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row1_col3,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row1_col4,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row2_col0,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row2_col1,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row2_col2,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row2_col3,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row2_col4,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row3_col0,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row3_col1,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row3_col2,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row3_col3,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row3_col4,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row4_col0,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row4_col1,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row4_col2,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row4_col3,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row4_col4,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row5_col0,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row5_col1,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row5_col2,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row5_col3,#T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row5_col4{
+            color:  black;
+        }</style><table id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9" ><thead>    <tr>        <th class="blank level0" ></th>        <th class="col_heading level0 col0" >image</th>        <th class="col_heading level0 col1" >frame</th>        <th class="col_heading level0 col2" >time</th>        <th class="col_heading level0 col3" >defects</th>        <th class="col_heading level0 col4" >file name</th>    </tr></thead><tbody>
+                <tr>
+                        <th id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9level0_row0" class="row_heading level0 row0" >1</th>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row0_col0" class="data row0 col0" >10</td>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row0_col1" class="data row0 col1" >284</td>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row0_col2" class="data row0 col2" >9.467</td>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row0_col3" class="data row0 col3" >10238</td>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row0_col4" class="data row0 col4" >Still_10.jpg</td>
+            </tr>
+            <tr>
+                        <th id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9level0_row1" class="row_heading level0 row1" >2</th>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row1_col0" class="data row1 col0" >12</td>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row1_col1" class="data row1 col1" >342</td>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row1_col2" class="data row1 col2" >11.400</td>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row1_col3" class="data row1 col3" >14388</td>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row1_col4" class="data row1 col4" >Still_12.jpg</td>
+            </tr>
+            <tr>
+                        <th id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9level0_row2" class="row_heading level0 row2" >3</th>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row2_col0" class="data row2 col0" >13</td>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row2_col1" class="data row2 col1" >370</td>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row2_col2" class="data row2 col2" >12.333</td>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row2_col3" class="data row2 col3" >10346</td>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row2_col4" class="data row2 col4" >Still_13.jpg</td>
+            </tr>
+            <tr>
+                        <th id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9level0_row3" class="row_heading level0 row3" >4</th>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row3_col0" class="data row3 col0" >17</td>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row3_col1" class="data row3 col1" >489</td>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row3_col2" class="data row3 col2" >16.300</td>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row3_col3" class="data row3 col3" >13263</td>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row3_col4" class="data row3 col4" >Still_17.jpg</td>
+            </tr>
+            <tr>
+                        <th id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9level0_row4" class="row_heading level0 row4" >5</th>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row4_col0" class="data row4 col0" >18</td>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row4_col1" class="data row4 col1" >515</td>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row4_col2" class="data row4 col2" >17.167</td>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row4_col3" class="data row4 col3" >10783</td>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row4_col4" class="data row4 col4" >Still_18.jpg</td>
+            </tr>
+            <tr>
+                        <th id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9level0_row5" class="row_heading level0 row5" >6</th>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row5_col0" class="data row5 col0" >33</td>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row5_col1" class="data row5 col1" >982</td>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row5_col2" class="data row5 col2" >32.733</td>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row5_col3" class="data row5 col3" >15810</td>
+                        <td id="T_59f0931a_5ce9_11eb_9857_000c29a2d8a9row5_col4" class="data row5 col4" >Still_33.jpg</td>
+            </tr>
+    </tbody></table>
+    <br />
+    <h3 style="font-size:1px; margin:0px;"><br /><br /></h3>
+    <h3>
+        <p style="page-break-before: always"></p>
+        <br />
+    </h3>
+
+
+    <hr />
+    <h3 style="font-size:1px; margin:0px;"><br /></h3>
+    <h2>STILL IMAGES WITH DEFECTS FOUND</h2>
+    <h3>
+        These are all of the images where defects (product hanging) were found. <br />
+    </h3>
+    
+    <h3 style="font-size:5px; margin:0px;"><br /></h3>
+    <h3>Frame = 284 &nbsp;time = 9.467 secs :</h3>
+    <img src='Z:\Shared Folders\Data_WCO\BHPB VisInsp OnSite\Samp Data\stills\Still_10.jpg' width="400">
+    
+    <h3 style="font-size:5px; margin:0px;"><br /></h3>
+    <h3>Frame = 342 &nbsp;time = 11.400 secs :</h3>
+    <img src='Z:\Shared Folders\Data_WCO\BHPB VisInsp OnSite\Samp Data\stills\Still_12.jpg' width="400">
+    
+    <h3 style="font-size:5px; margin:0px;"><br /></h3>
+    <h3>Frame = 370 &nbsp;time = 12.333 secs :</h3>
+    <img src='Z:\Shared Folders\Data_WCO\BHPB VisInsp OnSite\Samp Data\stills\Still_13.jpg' width="400">
+    
+    <h3 style="font-size:5px; margin:0px;"><br /></h3>
+    <h3>Frame = 489 &nbsp;time = 16.300 secs :</h3>
+    <img src='Z:\Shared Folders\Data_WCO\BHPB VisInsp OnSite\Samp Data\stills\Still_17.jpg' width="400">
+    
+    <h3 style="font-size:5px; margin:0px;"><br /></h3>
+    <h3>Frame = 515 &nbsp;time = 17.167 secs :</h3>
+    <img src='Z:\Shared Folders\Data_WCO\BHPB VisInsp OnSite\Samp Data\stills\Still_18.jpg' width="400">
+    
+    <h3 style="font-size:5px; margin:0px;"><br /></h3>
+    <h3>Frame = 982 &nbsp;time = 32.733 secs :</h3>
+    <img src='Z:\Shared Folders\Data_WCO\BHPB VisInsp OnSite\Samp Data\stills\Still_33.jpg' width="400">
+    
+
+
+
+
+</body>
+</html>
